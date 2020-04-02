@@ -12,8 +12,8 @@ import com.fs.tetouan.model.Training;
 public interface TrainingRepository extends JpaRepository<Training,Integer> {
 
 
-	@Query("SELECT t FROM Training t WHERE t.trainingName = :name")
-	public List<Training> findAllTrainingByName(String name);
+	@Query("SELECT t FROM Training t WHERE t.id = :id")
+	public Training findAllTrainingId(long id);
 	
 	@Query("SELECT t FROM Training t WHERE t.startdate BETWEEN :dateDebut and :dateEnd")
 	public List<Training> getAllTrainingBetweenTwoDate(Date dateDebut, Date dateEnd);
