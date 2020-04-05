@@ -7,7 +7,7 @@ import javax.persistence.Id;
 
 @Entity
 
-public class Inscription {
+public class CourseSubscription {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -18,12 +18,11 @@ public class Inscription {
     private Integer idUser ;
     private Integer idTraining ;
     
-	public Inscription () {
+	public CourseSubscription () {
 		
 	}
 
-	public Inscription(String city, String phone, String adress, Integer idUser, Integer idTraining) {
-		super();
+	public CourseSubscription(String city, String phone, String adress, Integer idUser, Integer idTraining) {
 		this.city = city;
 		this.phone = phone;
 		this.adress = adress;

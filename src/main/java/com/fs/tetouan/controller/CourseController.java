@@ -1,9 +1,15 @@
 package com.fs.tetouan.controller;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.zip.DataFormatException;
+import java.util.zip.Deflater;
+import java.util.zip.Inflater;
 
 import org.apache.commons.lang.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,12 +19,16 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
-import com.fs.tetouan.Dto.PriceRequest;
-import com.fs.tetouan.model.PlanElement;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fs.tetouan.model.Training;
+import com.fs.tetouan.model.User;
 import com.fs.tetouan.repository.TrainingRepository;
+import com.fs.tetouan.repository.UserRepository;
 
 
 @RestController
@@ -30,13 +40,27 @@ public class CourseController {
     @Autowired
     private TrainingRepository trainingRepository;
     
+    @Autowired
+    private UserRepository userRepository;
+    
     Map<Long, Double> prices ;
        
     
-    @PostMapping("placeTrail")
-    public Training placeOrder(@RequestBody Training training){
+    @PostMapping("placeTrail/{idUser}")
+    public Training placeOrder(@RequestPart("trainingObj") String trainingString, @RequestPart("courseImg") MultipartFile profileImage,
+    		@PathVariable(name = "idUser") long instructorId) throws IOException{
+       
+    	System.out.println("ttt"+trainingString);
+       Training  training = new ObjectMapper().readValue(trainingString, Training.class);
+       
+       //get Image from Request param
+       training.setImage(compressBytes(profileImage.getBytes()));
+       //add user to instructor
+       Optional<User> instructor = userRepository.findById(instructorId);
+       training.setUser(instructor.get());
        System.out.println(training.getTrainingName());
        return trainingRepository.save(training);
+       
        
     }
 
@@ -48,7 +72,9 @@ public class CourseController {
     
     @GetMapping("find/{id}")
     public Training getTrainingById(@PathVariable("id") long id){
-        return trainingRepository.findAllTrainingId(id);
+    	Training training = trainingRepository.findAllTrainingId(id) ;
+    	training.setImage(decompressBytes(training.getImage()));
+        return training;
     }
     
     
@@ -58,17 +84,42 @@ public class CourseController {
         return trainingRepository.getAllTrainingBetweenTwoDate(today, DateUtils.addMonths(new Date(), 1));
     }
     
-    @GetMapping("sumPrice/{id}")
-    public PriceRequest getTrainingPrice(@PathVariable("id") long id){
-    	double price = 0.0 ;
-        Training t = trainingRepository.findAllTrainingId(id);
-        for (PlanElement plan : t.getPlan()) {
-			price +=plan.getPrice() ;
-		}
-        return new PriceRequest(price) ;
-    }
-    
-    
-    
+ // compress the image bytes before storing it in the database
+ 	public static byte[] compressBytes(byte[] data) {
+ 		Deflater deflater = new Deflater();
+ 		deflater.setInput(data);
+ 		deflater.finish();
+ 		ByteArrayOutputStream outputStream = new ByteArrayOutputStream(data.length);
+ 		byte[] buffer = new byte[1024];
+ 		while (!deflater.finished()) {
+ 			int count = deflater.deflate(buffer);
+ 			outputStream.write(buffer, 0, count);
+ 		}
+ 		try {
+ 			outputStream.close();
+ 		} catch (IOException e) {
+ 			System.err.println(e.getMessage());
+ 		}
+ 		System.out.println("Compressed Image Byte Size - " + outputStream.toByteArray().length);
+ 		return outputStream.toByteArray();
+ 	}
+ 	
+ 	// uncompress the image bytes before returning it to the angular application
+ 	public static byte[] decompressBytes(byte[] data) {
+ 		Inflater inflater = new Inflater();
+ 		inflater.setInput(data);
+ 		ByteArrayOutputStream outputStream = new ByteArrayOutputStream(data.length);
+ 		byte[] buffer = new byte[1024];
+ 		try {
+ 			while (!inflater.finished()) {
+ 				int count = inflater.inflate(buffer);
+ 				outputStream.write(buffer, 0, count);
+ 			}
+ 			outputStream.close();
+ 		} catch (IOException ioe) {
+ 		} catch (DataFormatException e) {
+ 		}
+ 		return outputStream.toByteArray();
+ 	}
     
 }

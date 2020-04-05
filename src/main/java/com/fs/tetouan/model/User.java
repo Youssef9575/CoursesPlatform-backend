@@ -28,7 +28,6 @@ public class User {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	private String AvatarImagePath;
 	@NotBlank
 	@Size(min = 3, max = 50)
 	private String name;
@@ -55,12 +54,17 @@ public class User {
 	public User() {
 	}
 
+	
+	public User(String name) {
+		this.name = name;
+	}
+
+
 	public User(String name, String username, String email, String password , String avatar) {
 		this.name = name;
 		this.username = username;
 		this.email = email;
 		this.password = password;
-		this.AvatarImagePath = avatar ;
 	}
 
 	public Long getId() {
@@ -110,13 +114,4 @@ public class User {
 	public void setRoles(Set<Role> roles) {
 		this.roles = roles;
 	}
-
-	public String getAvatarImagePath() {
-		return AvatarImagePath;
-	}
-
-	public void setAvatarImagePath(String avatarImagePath) {
-		AvatarImagePath = avatarImagePath;
-	}
-	
 }

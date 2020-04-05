@@ -1,6 +1,7 @@
 package com.fs.tetouan.controller;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -11,9 +12,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.fs.tetouan.Dto.SubscriberRequest;
-import com.fs.tetouan.model.Inscription;
+import com.fs.tetouan.model.CourseSubscription;
+import com.fs.tetouan.model.Training;
 import com.fs.tetouan.repository.InscriptionRepsitory;
+import com.fs.tetouan.repository.TrainingRepository;
 
 
 
@@ -25,30 +27,30 @@ public class InscriptionController {
 	
     @Autowired
     private InscriptionRepsitory inscriptionRepository;
+    
+    @Autowired
+    private TrainingRepository trainingRepository;
        
     
     @PostMapping("add")
-    public Inscription addInscription(@RequestBody Inscription inscription){
+    public CourseSubscription addInscription(@RequestBody CourseSubscription inscription){
+       Optional<Training> training = trainingRepository.findById(inscription.getIdTraining()) ;
+       training.get().setNbrparticipant(training.get().getNbrparticipant()+1);
+       trainingRepository.save(training.get()) ;
+       
        return inscriptionRepository.save(inscription);
        
     }
 
     @GetMapping("findAllInscription")
-    public List<Inscription> findAllOrders(){
+    public List<CourseSubscription> findAllOrders(){
         return inscriptionRepository.findAll();
     }
 
     
     @GetMapping("find/{id}")
-    public Inscription getTrainingById(@PathVariable("id") long id){
+    public CourseSubscription getTrainingById(@PathVariable("id") long id){
         return inscriptionRepository.findAllInscriptionId(id);
-    }
-    
-    @GetMapping("subscriberNumber")
-    public SubscriberRequest getInscriptionNumber(@PathVariable("id") long id){
-    	System.out.println(inscriptionRepository.findNumberSubscriber());
-//        return new SubscriberRequest(id, inscriptionRepository.findNumberSubscriber(id)) ;
-    	return null;
     }
     
 }

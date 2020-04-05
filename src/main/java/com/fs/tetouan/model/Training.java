@@ -10,24 +10,34 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.Lob;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 
 @Entity
-public class Training {
+public class Training{
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;  
     private String trainingName;
+    @Lob
     private byte [] image ;
     private String ritme;
     private String etablissement;
     private Integer nombreofhours;
     private Integer nbrparticipant;
     private String description ;
+    
+    @Temporal(TemporalType.DATE)
     private Date startdate ;
+    
+    @Temporal(TemporalType.DATE)
     private Date endDate ;
+    
     private String [] preRequests ;
     private Integer maxSubscribers;
     
@@ -35,11 +45,16 @@ public class Training {
     @JoinColumn(name ="train_id",referencedColumnName = "id")
     private List<PlanElement> plan;
     
+    
+    @ManyToOne(targetEntity = User.class,cascade = CascadeType.ALL)
+    @JoinColumn(name ="instructor_id",referencedColumnName = "id")
+    private User user;
+    
     public Training() {}
 
 	public Training(String trainingName, byte[] image, String ritme, String etablissement, Integer nombreofhours,
 			Integer nbrparticipant, String description, Date startdate, Date endDate, String[] preRequests,
-			Integer maxSubscribers, List<PlanElement> plan) {
+			Integer maxSubscribers, List<PlanElement> plan, User user) {
 		super();
 		this.trainingName = trainingName;
 		this.image = image;
@@ -53,6 +68,7 @@ public class Training {
 		this.preRequests = preRequests;
 		this.maxSubscribers = maxSubscribers;
 		this.plan = plan;
+		this.user = user ;
 	}
 
 	public Long getId() {
@@ -158,5 +174,12 @@ public class Training {
 	public void setPlan(List<PlanElement> plan) {
 		this.plan = plan;
 	}
-    
+
+	public User getUser() {
+		return user;
+	}
+
+	public void setUser(User user) {
+		this.user = user;
+	}
 }

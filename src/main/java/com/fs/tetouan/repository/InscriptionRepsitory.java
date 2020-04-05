@@ -3,13 +3,11 @@ package com.fs.tetouan.repository ;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
-import com.fs.tetouan.model.Inscription;
+import com.fs.tetouan.model.CourseSubscription;
 
-public interface InscriptionRepsitory extends JpaRepository<Inscription,Integer> {
+public interface InscriptionRepsitory extends JpaRepository<CourseSubscription,Integer> {
 
-	@Query("SELECT i FROM Inscription i WHERE i.id = :id")
-	Inscription findAllInscriptionId(long id);
+	@Query("SELECT i FROM CourseSubscription i WHERE i.id = :id")
+	CourseSubscription findAllInscriptionId(long id);
 	
-	@Query("SELECT count(i) FROM Inscription")
-	long findNumberSubscriber();
 }
