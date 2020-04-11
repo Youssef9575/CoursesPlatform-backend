@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.zip.DataFormatException;
 import java.util.zip.Deflater;
@@ -17,9 +16,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -43,14 +40,13 @@ public class CourseController {
     @Autowired
     private UserRepository userRepository;
     
-    Map<Long, Double> prices ;
-       
+    List<Training> trainings ;
     
     @PostMapping("placeTrail/{idUser}")
-    public Training placeOrder(@RequestPart("trainingObj") String trainingString, @RequestPart("courseImg") MultipartFile profileImage,
+    public Training addTraining(@RequestPart("trainingObj") String trainingString, @RequestPart("courseImg") MultipartFile profileImage,
     		@PathVariable(name = "idUser") long instructorId) throws IOException{
        
-    	System.out.println("ttt"+trainingString);
+       //Transform String data to Object
        Training  training = new ObjectMapper().readValue(trainingString, Training.class);
        
        //get Image from Request param
@@ -58,23 +54,42 @@ public class CourseController {
        //add user to instructor
        Optional<User> instructor = userRepository.findById(instructorId);
        training.setUser(instructor.get());
-       System.out.println(training.getTrainingName());
        return trainingRepository.save(training);
        
        
     }
 
     @GetMapping("findAllTraining")
-    public List<Training> findAllOrders(){
-        return trainingRepository.findAll();
+	public List<Training> findAllOrders() {
+		trainings = trainingRepository.findAll();
+		for (Training training : trainings) {
+			training.setImage(decompressBytes(training.getImage()));
+		}
+		return trainings ;
     }
-
     
     @GetMapping("find/{id}")
     public Training getTrainingById(@PathVariable("id") long id){
-    	Training training = trainingRepository.findAllTrainingId(id) ;
+    	Training training = trainingRepository.findTrainingById(id) ;
     	training.setImage(decompressBytes(training.getImage()));
         return training;
+    }
+    
+    @GetMapping("startCourse/{id}")
+    public Training startTraining(@PathVariable("id") long id){
+    	Training training = trainingRepository.findTrainingById(id) ;
+    	training.setStarted(1);
+        return trainingRepository.save(training);
+    }
+    
+    @GetMapping("findTrainingByidInstructor/{idInstructor}")
+    public List<Training> findTrainingByidInstructor(@PathVariable("idInstructor") long instructorId){
+    	
+    	trainings = trainingRepository.findTrainingByidInstructor(instructorId);
+		for (Training training : trainings) {
+			training.setImage(decompressBytes(training.getImage()));
+		}
+        return trainings ;
     }
     
     
@@ -82,6 +97,12 @@ public class CourseController {
     public List<Training> getTrainingBetweenTwoDate(){
     	Date today = DateUtils.truncate(new Date(), Calendar.DAY_OF_MONTH);
         return trainingRepository.getAllTrainingBetweenTwoDate(today, DateUtils.addMonths(new Date(), 1));
+    }
+    
+    @GetMapping("delete/{id}")
+    public void deleteTrainingbyID(@PathVariable("id") long id){
+    	Training training = trainingRepository.findTrainingById(id) ;
+        trainingRepository.delete(training);
     }
     
  // compress the image bytes before storing it in the database

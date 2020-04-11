@@ -45,8 +45,10 @@ public class Training{
     @JoinColumn(name ="train_id",referencedColumnName = "id")
     private List<PlanElement> plan;
     
+    private int started ;
     
-    @ManyToOne(targetEntity = User.class,cascade = CascadeType.ALL)
+    
+    @ManyToOne(targetEntity = User.class, cascade = CascadeType.DETACH)
     @JoinColumn(name ="instructor_id",referencedColumnName = "id")
     private User user;
     
@@ -54,7 +56,7 @@ public class Training{
 
 	public Training(String trainingName, byte[] image, String ritme, String etablissement, Integer nombreofhours,
 			Integer nbrparticipant, String description, Date startdate, Date endDate, String[] preRequests,
-			Integer maxSubscribers, List<PlanElement> plan, User user) {
+			Integer maxSubscribers, List<PlanElement> plan, User user, int started) {
 		super();
 		this.trainingName = trainingName;
 		this.image = image;
@@ -69,6 +71,7 @@ public class Training{
 		this.maxSubscribers = maxSubscribers;
 		this.plan = plan;
 		this.user = user ;
+		this.started = started ;
 	}
 
 	public Long getId() {
@@ -182,4 +185,13 @@ public class Training{
 	public void setUser(User user) {
 		this.user = user;
 	}
+
+	public int getStarted() {
+		return started;
+	}
+
+	public void setStarted(int started) {
+		this.started = started;
+	}
+	
 }
