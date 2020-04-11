@@ -2,6 +2,10 @@ package com.fs.tetouan.controller;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -12,6 +16,8 @@ import java.util.zip.Inflater;
 
 import org.apache.commons.lang.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -41,6 +47,9 @@ public class CourseController {
     private UserRepository userRepository;
     
     List<Training> trainings ;
+    
+    List<String> files = new ArrayList<String>();
+    private final Path rootLocation = Paths.get("F:\\data\\");
     
     @PostMapping("placeTrail/{idUser}")
     public Training addTraining(@RequestPart("trainingObj") String trainingString, @RequestPart("courseImg") MultipartFile profileImage,
@@ -104,6 +113,24 @@ public class CourseController {
     	Training training = trainingRepository.findTrainingById(id) ;
         trainingRepository.delete(training);
     }
+    
+    @PostMapping("savefile/{id}")
+    public ResponseEntity<String> handleFileUpload(@RequestPart("file") MultipartFile file,  @PathVariable ("id") long id) {
+       String message;
+       User user = userRepository.findUserById(id) ;
+       try {
+            Files.copy(file.getInputStream(), this.rootLocation.resolve(user.getUsername()+".pdf"));
+            files.add(file.getOriginalFilename());
+            message = "Successfully uploaded!";
+            user.setPath("F:\\data\\"+user.getUsername()+".pdf");
+            userRepository.save(user) ;
+            return ResponseEntity.status(HttpStatus.OK).body(message);
+       } catch (Exception e) {
+          message = "Failed to upload!";
+          return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(message);
+       }
+    }
+    
     
  // compress the image bytes before storing it in the database
  	public static byte[] compressBytes(byte[] data) {
