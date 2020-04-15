@@ -45,8 +45,7 @@ public class CourseSubscriptionController {
        Training training = trainingRepository.findTrainingById(inscription.getIdTraining());
        training.setNbrparticipant(training.getNbrparticipant()+1);
        trainingRepository.save(training) ;
-       //save Subscription to cours
-       
+       //save Subscription to cours       
        
        return courseSubscriptionRepsitory.save(courseSubscription);
        
@@ -75,5 +74,6 @@ public class CourseSubscriptionController {
     public List<Training> findUserTraining(@PathVariable("idUser") long id){
         return courseSubscriptionRepsitory.findTrainingsByUserId(id);
     }
+    
     
 }

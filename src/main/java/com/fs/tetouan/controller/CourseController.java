@@ -28,8 +28,12 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fs.tetouan.model.CourseSubscription;
+import com.fs.tetouan.model.NotificationElement;
 import com.fs.tetouan.model.Training;
 import com.fs.tetouan.model.User;
+import com.fs.tetouan.repository.CourseSubscriptionRepsitory;
+import com.fs.tetouan.repository.NotificationRepository;
 import com.fs.tetouan.repository.TrainingRepository;
 import com.fs.tetouan.repository.UserRepository;
 
@@ -45,6 +49,14 @@ public class CourseController {
     
     @Autowired
     private UserRepository userRepository;
+    
+    @Autowired
+    private CourseSubscriptionRepsitory subscriptionRepository ;
+    
+    @Autowired
+    private NotificationRepository notficationRepository ;
+    
+   
     
     List<Training> trainings ;
     
@@ -86,10 +98,22 @@ public class CourseController {
     
     @GetMapping("startCourse/{id}")
     public Training startTraining(@PathVariable("id") long id){
+    	
     	Training training = trainingRepository.findTrainingById(id) ;
     	training.setStarted(1);
-        return trainingRepository.save(training);
+    	
+    	// notification generater 
+    	List<CourseSubscription> cs = subscriptionRepository.findAllCourseSubscriptionByTrainId(id)  ; 
+    	cs.forEach(item -> {
+    		Optional<User> user = userRepository.findById(item.getUser().getId()) ;
+    		notficationRepository.save(new NotificationElement("Your course " +item.getTraining().getTrainingName()+ " is confirmed , you are invited to assiste the course in "+ item.getTraining().getStartdate() + " at "+item.getTraining().getEtablissement() + " we hope you enjoy it ", "Course starting ",user.get()));
+    	});
+    	
+    	trainingRepository.save(training);
+        return  null  ;
     }
+    
+  
     
     @GetMapping("findTrainingByidInstructor/{idInstructor}")
     public List<Training> findTrainingByidInstructor(@PathVariable("idInstructor") long instructorId){

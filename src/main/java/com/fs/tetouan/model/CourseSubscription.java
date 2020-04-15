@@ -2,11 +2,14 @@ package com.fs.tetouan.model;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 
@@ -26,7 +29,8 @@ public class CourseSubscription {
 	@JoinColumn(name ="user_id",referencedColumnName = "id")
 	private User user;
 	
-	@ManyToOne(targetEntity = Training.class,cascade = CascadeType.DETACH)
+	@JsonIgnore
+	@ManyToOne(targetEntity = Training.class,cascade = CascadeType.DETACH ,fetch = FetchType.LAZY)
 	@JoinColumn(name ="train_id",referencedColumnName = "id")
 	private Training training;
 
