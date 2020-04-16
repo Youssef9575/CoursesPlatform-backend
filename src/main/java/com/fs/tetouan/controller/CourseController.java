@@ -51,10 +51,19 @@ public class CourseController {
     private UserRepository userRepository;
     
     @Autowired
+<<<<<<< HEAD
     private NotificationRepository notficationRepository ;
     
     @Autowired
     private CourseSubscriptionRepsitory subscriptionRepository;
+=======
+    private CourseSubscriptionRepsitory subscriptionRepository ;
+    
+    @Autowired
+    private NotificationRepository notficationRepository ;
+    
+   
+>>>>>>> 3b697f3053fa316c9d9919d6ecbb01ed6410a99a
     
     List<Training> trainings ;
     
@@ -110,6 +119,8 @@ public class CourseController {
     	trainingRepository.save(training);
         return  null  ;
     }
+    
+  
     
     @GetMapping("findTrainingByidInstructor/{idInstructor}")
     public List<Training> findTrainingByidInstructor(@PathVariable("idInstructor") long instructorId){

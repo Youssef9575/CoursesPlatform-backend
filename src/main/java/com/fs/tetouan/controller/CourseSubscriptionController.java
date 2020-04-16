@@ -49,8 +49,7 @@ public class CourseSubscriptionController {
        Training training = trainingRepository.findTrainingById(inscription.getIdTraining());
        training.setNbrparticipant(training.getNbrparticipant()+1);
        trainingRepository.save(training) ;
-       //save Subscription to cours
-       
+       //save Subscription to cours       
        
        return courseSubscriptionRepsitory.save(courseSubscription);
        
@@ -87,6 +86,7 @@ public class CourseSubscriptionController {
         return trainings;
     }
     
+<<<<<<< HEAD
  // uncompress the image bytes before returning it to the angular application
   	public static byte[] decompressBytes(byte[] data) {
   		Inflater inflater = new Inflater();
@@ -104,5 +104,7 @@ public class CourseSubscriptionController {
   		}
   		return outputStream.toByteArray();
   	}
+=======
+>>>>>>> 3b697f3053fa316c9d9919d6ecbb01ed6410a99a
     
 }

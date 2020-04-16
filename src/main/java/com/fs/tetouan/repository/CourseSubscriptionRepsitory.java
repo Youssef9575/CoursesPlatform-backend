@@ -21,5 +21,8 @@ public interface CourseSubscriptionRepsitory extends JpaRepository<CourseSubscri
 	
 	@Query("SELECT i FROM CourseSubscription i WHERE i.user.id = :trainId")
 	List<CourseSubscription> findAllCourseSubscriptionByUserId(long trainId);
+<<<<<<< HEAD
 	
+=======
+>>>>>>> 3b697f3053fa316c9d9919d6ecbb01ed6410a99a
 }
