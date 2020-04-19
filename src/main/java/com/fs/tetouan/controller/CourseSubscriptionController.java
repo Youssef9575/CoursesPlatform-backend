@@ -13,12 +13,15 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fs.tetouan.Dto.SubscreptionRequest;
 import com.fs.tetouan.model.CourseSubscription;
+import com.fs.tetouan.model.NotificationElement;
 import com.fs.tetouan.model.Training;
 import com.fs.tetouan.repository.CourseSubscriptionRepsitory;
+import com.fs.tetouan.repository.NotificationRepository;
 import com.fs.tetouan.repository.TrainingRepository;
 import com.fs.tetouan.repository.UserRepository;
 
@@ -38,17 +41,27 @@ public class CourseSubscriptionController {
     
     @Autowired
     private UserRepository userRepository;
+    
+    @Autowired
+    private NotificationRepository notficationRepository ;
+    
        
     
     @PostMapping("add")
     public CourseSubscription addInscription(@RequestBody SubscreptionRequest inscription){
     	
+       int numberSub = 0;
+    	
        CourseSubscription courseSubscription = new CourseSubscription(inscription.getCity(), inscription.getPhone(), inscription.getAdress(), 
     		   userRepository.findUserById(inscription.getIdUser()), trainingRepository.findTrainingById(inscription.getIdTraining()));
        //update training nombre participant
        Training training = trainingRepository.findTrainingById(inscription.getIdTraining());
-       training.setNbrparticipant(training.getNbrparticipant()+1);
+       numberSub = training.getNbrparticipant()+1 ;
+       training.setNbrparticipant(numberSub);
        trainingRepository.save(training) ;
+       //push notification that subscriper are 
+       notficationRepository.save(new NotificationElement("A new Student has enrolled in your course "+training.getTrainingName()+" "
+       		+ ", The total number of subscribers now is "+numberSub,"New course Subscription", training.getUser()));
        //save Subscription to cours       
        
        return courseSubscriptionRepsitory.save(courseSubscription);
@@ -86,7 +99,12 @@ public class CourseSubscriptionController {
         return trainings;
     }
     
-<<<<<<< HEAD
+    @RequestMapping("delete/subscription")
+    public void deleteSubscription(@RequestParam("idtrain") long idTrain, @RequestParam("iduser") long idUser){
+       CourseSubscription courseSubscription= courseSubscriptionRepsitory.getCourseSubscription(idTrain, idUser) ;
+       courseSubscriptionRepsitory.delete(courseSubscription);
+    }
+    
  // uncompress the image bytes before returning it to the angular application
   	public static byte[] decompressBytes(byte[] data) {
   		Inflater inflater = new Inflater();
@@ -104,7 +122,5 @@ public class CourseSubscriptionController {
   		}
   		return outputStream.toByteArray();
   	}
-=======
->>>>>>> 3b697f3053fa316c9d9919d6ecbb01ed6410a99a
     
 }

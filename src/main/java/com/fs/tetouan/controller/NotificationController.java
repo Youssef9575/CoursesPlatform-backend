@@ -1,5 +1,6 @@
 package com.fs.tetouan.controller;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -39,6 +40,19 @@ public class NotificationController {
 			repo.save(not) ;
 		});
 		return true;
+	}
+	
+	@GetMapping(value = "userNotificationForMarkAsReaded/{id}")
+	public List<NotificationElement> getUserNotficationsForMarkAsReaded(@PathVariable("id") Long id) {
+		
+		List<NotificationElement> ret = new ArrayList<NotificationElement>();
+		ret =repo.findByUserId(id); 
+		
+		repo.findByUserId(id).forEach(not -> {
+			not.setIsreaded(true);
+			repo.save(not) ;
+		});
+		return ret;
 	}
 }
 

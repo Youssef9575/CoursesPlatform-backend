@@ -51,24 +51,18 @@ public class CourseController {
     private UserRepository userRepository;
     
     @Autowired
-<<<<<<< HEAD
     private NotificationRepository notficationRepository ;
     
     @Autowired
     private CourseSubscriptionRepsitory subscriptionRepository;
-=======
-    private CourseSubscriptionRepsitory subscriptionRepository ;
     
-    @Autowired
-    private NotificationRepository notficationRepository ;
     
    
->>>>>>> 3b697f3053fa316c9d9919d6ecbb01ed6410a99a
     
     List<Training> trainings ;
     
     List<String> files = new ArrayList<String>();
-    private final Path rootLocation = Paths.get("F:\\data\\");
+    private final Path rootLocation = Paths.get("C:/Users/Laptop/Documents/workspace-spring-tool-suite-4-4.4.0.RELEASE/FrontApp/src/assets/files/");
     
     @PostMapping("placeTrail/{idUser}")
     public Training addTraining(@RequestPart("trainingObj") String trainingString, @RequestPart("courseImg") MultipartFile profileImage,
@@ -89,7 +83,7 @@ public class CourseController {
 
     @GetMapping("findAllTraining")
 	public List<Training> findAllOrders() {
-		trainings = trainingRepository.findAll();
+    	List<Training>  trainings = trainingRepository.findAll();
 		for (Training training : trainings) {
 			training.setImage(decompressBytes(training.getImage()));
 		}
@@ -116,8 +110,7 @@ public class CourseController {
     		notficationRepository.save(new NotificationElement("Your course " +item.getTraining().getTrainingName()+ " is confirmed , you are invited to assiste the course in "+ item.getTraining().getStartdate() + " at "+item.getTraining().getEtablissement() + " we hope you enjoy it ", "Course starting ",user.get()));
     	});
     	
-    	trainingRepository.save(training);
-        return  null  ;
+        return  trainingRepository.save(training);  
     }
     
   
@@ -139,11 +132,7 @@ public class CourseController {
         return trainingRepository.getAllTrainingBetweenTwoDate(today, DateUtils.addMonths(new Date(), 1));
     }
     
-    @GetMapping("delete/{id}")
-    public void deleteTrainingbyID(@PathVariable("id") long id){
-    	Training training = trainingRepository.findTrainingById(id) ;
-        trainingRepository.delete(training);
-    }
+     
     
     @PostMapping("savefile/{id}")
     public ResponseEntity<String> handleFileUpload(@RequestPart("file") MultipartFile file,  @PathVariable ("id") long id) {
@@ -153,7 +142,7 @@ public class CourseController {
             Files.copy(file.getInputStream(), this.rootLocation.resolve(user.getId()+".pdf"));
             files.add(file.getOriginalFilename());
             message = "Successfully uploaded!";
-            user.setPath("F:/data/"+user.getId()+".pdf");
+            user.setPath("C:/Users/Laptop/Documents/workspace-spring-tool-suite-4-4.4.0.RELEASE/FrontApp/src/assets/files/"+user.getId()+".pdf");
             userRepository.save(user) ;
             return ResponseEntity.status(HttpStatus.OK).body(message);
        } catch (Exception e) {
